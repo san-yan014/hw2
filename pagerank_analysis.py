@@ -3,20 +3,34 @@ import time
 import sys
 import numpy as np
 from google.cloud import storage
+from concurrent.futures import ThreadPoolExecutor
+
+def download_file(blob):
+    """download a single file"""
+    if blob.name.endswith('.json'):
+        return json.loads(blob.download_as_text())
+    return None
 
 def main(bucket_name):
     start_time = time.time()
     
-    # read  files from bucket
+    # read all files from bucket
     print(f'reading from gs://{bucket_name}/graph_data/')
     client = storage.Client()
     bucket = client.bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix='graph_data/')
+    blobs = list(bucket.list_blobs(prefix='graph_data/'))
     
+    print(f'found {len(blobs)} files, downloading...')
+    
+    # parallel download (much faster)
     pages = []
-    for blob in blobs:
-        if blob.name.endswith('.json'):
-            pages.append(json.loads(blob.download_as_text()))
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        results = executor.map(download_file, blobs)
+        for i, result in enumerate(results):
+            if result:
+                pages.append(result)
+            if (i + 1) % 1000 == 0:
+                print(f'downloaded {i + 1} files...')
     
     n = len(pages)
     print(f'loaded {n} pages')
