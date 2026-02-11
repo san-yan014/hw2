@@ -22,7 +22,7 @@ def main(bucket_name):
     
     print(f'found {len(blobs)} files, downloading...')
     
-    # parallel download (much faster)
+    # parallel download 
     pages = []
     with ThreadPoolExecutor(max_workers=20) as executor:
         results = executor.map(download_file, blobs)
