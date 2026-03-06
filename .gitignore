@@ -14,6 +14,7 @@ key.json
 
 # data
 graph_data/
+pictures/
 
 # os
 .DS_Store
