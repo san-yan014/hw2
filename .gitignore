@@ -13,8 +13,8 @@ key.json
 *.pdf
 
 # data
-graph_data/
-pictures/
+hw3/graph_data/
+hw4/pictures/
 
 # os
 .DS_Store
